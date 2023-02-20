@@ -1,0 +1,9 @@
+void setup(){
+  Serial.begin(9600); 
+} 
+void loop() {
+  String s = "hello, arduino => ";
+  Serial.print(s);
+  Serial.println(Serial.readString());
+  delay(300); 
+}

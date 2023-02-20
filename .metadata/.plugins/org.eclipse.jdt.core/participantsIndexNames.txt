@@ -1,0 +1,5 @@
+INDEX VERSION 1.131
+D:\Study_IoT\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1140582059.index
+\nodem\src\main\java
+D:\Study_IoT\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\3956277547.index
+\nodeMcuNoracleV2\src\main\java

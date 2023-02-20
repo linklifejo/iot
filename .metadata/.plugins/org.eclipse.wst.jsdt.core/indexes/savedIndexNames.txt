@@ -1,0 +1,7 @@
+INDEX VERSION 1.4+D:\Study_IoT\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+4286522286.index
+3695096993.index
+3213548267.index
+1981527337.index
+3873308284.index
+2318297459.index

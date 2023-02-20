@@ -1,0 +1,182 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page session="false"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+</head>
+<body>
+	<div>
+		<h1>NodeMCU_13</h1>
+		<button type='button' onclick='sendData(1)'>LED ON</button>
+		<button type='button' onclick='sendData(0)'>LED OFF</button>
+		<BR>
+	</div>
+	<div>
+		ADC Value is : <span id='ADCValue'>0</span><br> LED State is : <span
+			id='LEDState'>NA</span>
+	</div>
+	<script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+	<script>
+		function sendGet(param) {
+			$.ajax({
+				type : 'get',
+				url : 'http://192.168.123.135:8090/node?led=' + param,
+				success : function(result, status, xhr) {
+					console.log(result);
+				},
+			});
+		}
+		function sendData(led) {
+			$.ajax({
+				type : 'get',
+				url : '/setLED?LEDstate=' + led,
+				success : function(result, status, xhr) {
+					console.log(result);
+					$('#LEDState').html(result);
+					sendGet(result);
+				},
+			});
+		}
+		setInterval(function() {
+			getData();
+		}, 2000);
+		function getData() {
+			$.ajax({
+				type : 'get',
+				url : '/readADC',
+				success : function(result, status, xhr) {
+					console.log(result);
+					$('#ADCValue').html(result);
+				},
+			});
+		}
+	</script>
+	<br>
+</body>
+</html>
+
+create sequence seq_led;
+
+create table tbl_led(
+Lno number(10,0),
+onOff varchar(20) not null,
+regDate date default sysdate);
+commit;
+
+
+
+<!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8 -->
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc8</artifactId>
+			<version>19.7.0.0</version>
+			<scope>test</scope>
+		</dependency>
+
+
+
+<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+
+
+<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.5.3</version>
+		</dependency>
+
+<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>3.4.5</version>
+		</dependency>
+
+
+// root-context.xml 에 아래 코드 추가요.
+<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName"
+			value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		<property name="jdbcUrl"
+			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:XE">
+		</property>
+		<property name="username" value="hanul"></property>
+		<property name="password" value="0000"></property>
+	</bean>
+
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+		destroy-method="close">
+		<constructor-arg ref="hikariConfig"></constructor-arg>
+	</bean>
+
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<mybatis-spring:scan base-package="kr.hanul.mapper" />
+
+	<context:component-scan
+		base-package="kr.hanul.service">
+	</context:component-scan>
+
+
+
+// log4jdbc 의존성 추가.
+<!-- https://mvnrepository.com/artifact/org.bgee.log4jdbc-log4j2/log4jdbc-log4j2-jdbc4.1 -->
+		<dependency>
+			<groupId>org.bgee.log4jdbc-log4j2</groupId>
+			<artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
+			<version>1.16</version>
+		</dependency>
+
+
+// *.properties 에 아래 내용 추가.
+log4jdbc.spylogdelegator.name=net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator
+
+// LedMapper.xml 에 아래 내용 추가.
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.hanul.mapper.LedMapper">
+	<insert id="insert">
+		insert into tbl_led(lno,onOff) values
+		(seq_led.nextval, #{onOff})
+	</insert>
+</mapper>
+
+// pom.xml 에 아래 의존성 추가.
+<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.20</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+
+
+http://localhost:8090/controller/node?led=on
+
+
+// pom.xml 에 아래 의존성 추가 바랍니다.
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>5.2.9.RELEASE</version>
+		</dependency>
+
+
+// esp8266 wifi library 참고,
+https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
+
+
+https://hannut91.github.io/blogs/infra/cors
