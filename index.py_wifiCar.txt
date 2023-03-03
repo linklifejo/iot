@@ -1,0 +1,96 @@
+// index.py
+from flask import Flask, request
+from flask import render_template, make_response
+import RPi.GPIO as GPIO
+
+app = Flask(__name__)
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+motor_a_a=5
+motor_a_b=6
+motor_b_a=13
+motor_b_b=26
+
+GPIO.setup(5, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(6, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(13, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(26, GPIO.OUT, initial=GPIO.LOW)
+motor_a_a_pwm=GPIO.PWM(motor_a_a,50)
+motor_a_b_pwm=GPIO.PWM(motor_a_b,50)
+motor_b_a_pwm=GPIO.PWM(motor_b_a,50)
+motor_b_b_pwm=GPIO.PWM(motor_b_b,50)
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/moving", methods=["GET"])
+def moving():
+    state=request.args.get('state')
+    
+    try:
+        if state=="go":        
+            GPIO.output(motor_a_a, GPIO.HIGH)
+            GPIO.output(motor_a_b, GPIO.LOW)
+            GPIO.output(motor_b_a, GPIO.LOW)
+            GPIO.output(motor_b_b, GPIO.HIGH)
+            #마주보는 모터가 반대로 동작.
+            
+            motor_a_b_pwm.ChangeDutyCycle(50)
+            motor_b_b_pwm.ChangeDutyCycle(50)
+            print("go")
+            return make_response("go", 200)
+        
+        if state=="back":        
+            GPIO.output(motor_a_a, GPIO.LOW)
+            GPIO.output(motor_a_b, GPIO.HIGH)
+            GPIO.output(motor_b_a, GPIO.HIGH)
+            GPIO.output(motor_b_b, GPIO.LOW)
+            #마주보는 모터가 반대로 동작.
+            
+            motor_a_b_pwm.ChangeDutyCycle(50)
+            motor_b_b_pwm.ChangeDutyCycle(50)
+            print("back")
+            return make_response("back", 200)
+        
+        if state=="stop":
+            GPIO.output(motor_a_a, GPIO.LOW)
+            GPIO.output(motor_a_b, GPIO.LOW)
+            GPIO.output(motor_b_a, GPIO.LOW)
+            GPIO.output(motor_b_b, GPIO.LOW)
+            
+            motor_a_a_pwm.ChangeDutyCycle(0)
+            motor_a_b_pwm.ChangeDutyCycle(0)
+            motor_b_a_pwm.ChangeDutyCycle(0)
+            motor_b_b_pwm.ChangeDutyCycle(0)
+            print("stop")
+            return make_response("stop", 200)
+
+        if state=="left":        
+            GPIO.output(motor_a_a, GPIO.HIGH)
+            GPIO.output(motor_a_b, GPIO.LOW)
+            GPIO.output(motor_b_a, GPIO.HIGH)
+            GPIO.output(motor_b_b, GPIO.LOW)
+            
+            motor_a_b_pwm.ChangeDutyCycle(50)
+            motor_b_b_pwm.ChangeDutyCycle(50)
+            print("left")
+            return make_response("left", 200)
+        
+        if state=="right":        
+            GPIO.output(motor_a_a, GPIO.LOW)
+            GPIO.output(motor_a_b, GPIO.HIGH)
+            GPIO.output(motor_b_a, GPIO.LOW)
+            GPIO.output(motor_b_b, GPIO.HIGH)
+            
+            motor_a_b_pwm.ChangeDutyCycle(50)
+            motor_b_b_pwm.ChangeDutyCycle(50)
+            print("right")
+            return make_response("right", 200)
+        
+    except expression as identifier:
+        return "fail"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
+
